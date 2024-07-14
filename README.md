@@ -17,4 +17,4 @@ This project automates daily searches on Bing using Selenium WebDriver. The scri
 You can install the required packages using pip:
 
 ```sh
-pip install selenium webdriver-manager requests
+pip install -r requirements.txt
