@@ -18,7 +18,7 @@ You can install the required packages using pip:
 
 ```sh
 pip install -r requirements.txt
-
+```
 ## Usage
 
 - Clone repository
