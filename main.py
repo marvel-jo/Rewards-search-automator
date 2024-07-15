@@ -67,6 +67,22 @@ def perform_daily_sets():
         
         # Wait briefly before proceeding to the next link
         time.sleep(2)
+def perform_daily_activities():
+    try:
+        daily_activities = driver.find_elements(By.CLASS_NAME, 'mee-icon.mee-icon-AddMedium')
+
+        for activity in daily_activities:
+            try:
+                activity.click()
+                time.sleep(2)  # Adjust timing as necessary
+                driver.switch_to.window(driver.window_handles[-1])
+                driver.close()
+                driver.switch_to.window(driver.window_handles[0])
+            except Exception as e:
+                print(f"Error performing activity: {e}")
+                continue
+    except Exception as e:
+        print(f"Error finding activities: {e}")
 def perform_daily_search(url):
         driver.get("https://www.bing.com/")
         # Fetch content from URL
@@ -97,6 +113,7 @@ password = "yourpassword"
 # Login and perform daily sets
 login_to_microsoft(email, password)
 perform_daily_sets()
+perform_daily_activities()
 perform_daily_search("https://raw.githubusercontent.com/marvel-jo/Rewards-search-automator/main/words.txt")
 # Close the driver
 driver.quit()
