@@ -10,8 +10,8 @@ import time
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 # Setup WebDriver
-driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
-
+options = webdriver.ChromeOptions()
+driver = webdriver.Chrome(options=options)
 # Navigate to Bing
 driver.get("https://www.bing.com/")
 
@@ -33,7 +33,7 @@ def login_to_microsoft(email, password):
     password_input = driver.find_element(By.NAME, 'passwd')
     password_input.send_keys(password)
     driver.find_element(By.ID, 'idSIButton9').click()
-    time.sleep(2)
+    time.sleep(4)
     
     # Stay signed in? (Yes)
     driver.find_element(By.ID, 'acceptButton').click()
@@ -84,10 +84,12 @@ def perform_daily_activities():
     except Exception as e:
         print(f"Error finding activities: {e}")
 def perform_daily_search(url):
-        driver.get("https://www.bing.com/")
+        driver.get("https://rewards.bing.com/pointsbreakdown")
+        time.sleep(4)
+        driver.find_element(By.CLASS_NAME, 'ng-binding.ng-scope.c-hyperlink').click()
+        time.sleep(4)
         # Fetch content from URL
         response = requests.get(url)
-        response.raise_for_status()  # Raise an exception for bad status codes (4xx or 5xx)
 
         # Split text into words (assuming one word per line)
         words = response.text.splitlines()
@@ -96,17 +98,41 @@ def perform_daily_search(url):
         random.shuffle(words)
 
         # Perform 40 searches
+        driver.switch_to.window(driver.window_handles[-1])
+        time.sleep(10)
+        try:
+            input_element = driver.find_element(By.ID, "id_a")
+            input_element.click()
+            time.sleep(5)
+
+            try:
+                sign_in_element = driver.find_element(By.CLASS_NAME, "id_text_signin")
+                sign_in_element.click()
+            except Exception as e:
+                print(f"Error performing activity: {e}")
+        except Exception as e:
+            print(f"Error finding activities: {e}")
         for query in words[:40]:
-            search_box = WebDriverWait(driver, 10).until(
-                EC.visibility_of_element_located((By.NAME, 'q'))
-            )
+            search_box = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.NAME, 'q')))
             search_box.clear()  # Clear any previous text in the search box
             search_box.send_keys(query)
             search_box.send_keys(Keys.RETURN)
-            time.sleep(5)  # Wait for search results to load
-
+            time.sleep(random.uniform(8,12))  # Wait for search results to load
+def logout_of_microsoft():
+    driver.get("https://account.microsoft.com/")
+    time.sleep(2)
+    
+    # Open the user account menu
+    user_menu_button = driver.find_element(By.ID, 'mectrl_headerPicture')
+    user_menu_button.click()
+    time.sleep(2)
+    
+    # Click on the sign-out button
+    sign_out_button = driver.find_element(By.ID, 'mectrl_body_signOut')
+    sign_out_button.click()
+    time.sleep(5)
 # Replace these with your Microsoft account email and password
-email = "your.email@gmail.com"
+email = "youraccount@gmail.com"
 password = "yourpassword"
 
 
@@ -115,5 +141,6 @@ login_to_microsoft(email, password)
 perform_daily_sets()
 perform_daily_activities()
 perform_daily_search("https://raw.githubusercontent.com/marvel-jo/Rewards-search-automator/main/words.txt")
+# logout_of_microsoft()
 # Close the driver
 driver.quit()
